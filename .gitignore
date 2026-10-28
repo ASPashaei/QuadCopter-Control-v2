@@ -1,0 +1,31 @@
+# MATLAB / Simulink generated files
+slprj/
+*.slxc
+*.asv
+*.autosave
+*.mex*
+*_ert_rtw/
+*_grt_rtw/
+*.slx.bak
+*.slx.r20*
+
+# Proteus
+Proteus/Project Backups/
+*.workspace
+*.pdsbak
+
+# Arduino / ESP32 build output (keep the .hex files Proteus loads)
+**/build/
+*.bin
+*.elf
+
+# Large media — published as release assets instead
+*.mp4
+*.mov
+*.zip
+*.rar
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
