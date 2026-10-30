@@ -125,7 +125,7 @@ The `.ino` files in these folders run on the simulated ATmega328P in Proteus, no
 | `PrjReport_Pashaei_Oleiaeemehr_MirKazemi_Group8.pdf` | Full project report: dynamics, control, sensors and EKF, circuits, actuators, GUI, hardware, innovation and commercialisation. |
 | `Quadcopter_Project_Presentation.pdf` | Presentation slides. |
 
-The demonstration videos are too large for a Git repository (370–670 MB each) and are attached to the [**v1.0 release**](../../releases/tag/v1.0) instead — see [Videos](#videos).
+The demonstration videos are too large for a Git repository (370–670 MB each) and are attached to the [**Videos release**](../../releases/tag/videos) instead — see [Videos](#videos).
 
 ---
 
@@ -283,7 +283,7 @@ The firmware is in [`ESP32_Firmware/sensor_read/sensor_read.ino`](ESP32_Firmware
 
 ## Videos
 
-Attached to the [v1.0 release](../../releases/tag/v1.0):
+Attached to the [Videos release](../../releases/tag/videos):
 
 | File | Content |
 |---|---|
