@@ -59,7 +59,7 @@ The controllers are designed on the noise-free plant first (`Simulink_simulation
 ├── plot_sensorAndFilterAndActual.mlx  # Plots true vs. sensor vs. EKF signals
 ├── GenerateDataForUltraSonicSensor.mlx# Generates ultrasonic.txt (rangefinder input for Proteus PWLIN)
 ├── ultrasonic.txt
-├── pics/                              # Simulation result figures
+├── pics/                              # Simulation result figures and a photo of the built circuit
 ├── Proteus/
 │   ├── conditioning_circuits.pdsprj   # All conditioning circuits (Proteus project)
 │   ├── Circuit 1/                     # Power-supply conditioning — results
@@ -94,7 +94,7 @@ The controllers are designed on the noise-free plant first (`Simulink_simulation
 | `plot_sensorAndFilterAndActual.mlx` | Live script that produces the true vs. sensor vs. EKF comparison plots in `pics/`. |
 | `GenerateDataForUltraSonicSensor.mlx` | Live script that writes `ultrasonic.txt`: a simulated MB1240 output (4.88 mV/cm) for a descent from 200 cm to 20 cm. |
 | `ultrasonic.txt` | Time–voltage table used as the input of the Proteus PWLIN source in Circuit 6 (a copy is also kept in `Proteus/`). |
-| `pics/` | Exported result figures: roll, pitch and yaw estimation; x, y, z comparisons with estimated-state feedback; raw sensor outputs. |
+| `pics/` | Exported result figures (roll, pitch and yaw estimation; x, y, z comparisons with estimated-state feedback; raw sensor outputs) and `hardware_circuit.jpg`, a photo of the built circuit. |
 
 **Proteus and firmware (`Proteus/`)**
 
@@ -254,6 +254,25 @@ The MaxBotix MB1240 ultrasonic sensor specified in the design couldn't be source
 
 ---
 
+## Hardware implementation
+
+<p align="center">
+  <img src="pics/hardware_circuit.jpg" alt="The DAQ circuit built on breadboard: Sharp IR sensor, op-amp filter stage, ESP32 and 16x2 LCD" width="600">
+</p>
+<p align="center"><em>The physical DAQ circuit: Sharp GP2Y0A21YK IR rangefinder (bottom left), MB102 power module (left), LM358 filter stage (centre), ESP32 (right) and 16×2 LCD (top).</em></p>
+
+The signal path from the sensor to the display:
+
+1. **Sensor.** The Sharp GP2Y0A21YK outputs an analog voltage that falls as the distance to the surface grows.
+2. **Butterworth filter.** An LM358 buffer passes the signal into a second-order Sallen-Key Butterworth low-pass filter (10 Hz cutoff), which removes high-frequency noise before sampling.
+3. **2/3 voltage divider.** The filtered voltage is multiplied by 2/3, so it never exceeds the 3.3 V limit of the ESP32's input pins.
+4. **ESP32.** The 12-bit ADC on GPIO 34 samples the voltage. The firmware multiplies it by 1.5 to undo the divider, then converts it to distance with the curve fitted to the sensor's datasheet, `d = 27.86 · V^(−1.15) − 0.42` (cm).
+5. **Output.** The distance is shown on the 16×2 LCD and sent at 50 Hz over the USB serial port (115200 baud) and over Bluetooth serial (device name `Drone_Telemetry`), where any serial Bluetooth terminal app on a phone can read it. The MATLAB GUI's Hardware tab plots the same serial stream.
+
+The firmware is in [`Proteus/sensor read/sensor_read/sensor_read.ino`](Proteus/sensor%20read/sensor_read/sensor_read.ino).
+
+---
+
 ## Videos
 
 Attached to the [v1.0 release](../../releases/tag/v1.0):
@@ -264,6 +283,8 @@ Attached to the [v1.0 release](../../releases/tag/v1.0):
 | `Implementation_video_1.mp4` | The physical DAQ circuit in operation |
 | `HardWareImplementation_GUI.mp4` | Hardware streaming live into the MATLAB GUI |
 | `Implementation_Bluetooth_ProteusWithLCD.mp4` | Bluetooth telemetry and the Proteus HIL/LCD link |
+
+*Narration in Persian.*
 
 ---
 
