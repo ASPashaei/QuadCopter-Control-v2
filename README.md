@@ -60,6 +60,8 @@ The controllers are designed on the noise-free plant first (`Simulink_simulation
 ├── GenerateDataForUltraSonicSensor.mlx# Generates ultrasonic.txt (rangefinder input for Proteus PWLIN)
 ├── ultrasonic.txt
 ├── pics/                              # Simulation result figures and a photo of the built circuit
+├── ESP32_Firmware/
+│   └── sensor_read/sensor_read.ino    # Firmware for the physical ESP32 DAQ node
 ├── Proteus/
 │   ├── conditioning_circuits.pdsprj   # All conditioning circuits (Proteus project)
 │   ├── Circuit 1/                     # Power-supply conditioning — results
@@ -69,7 +71,6 @@ The controllers are designed on the noise-free plant first (`Simulink_simulation
 │   ├── circuit 5/micro_code/          # GPS (NMEA) → LCD firmware
 │   ├── circuit 6/                     # Rangefinder analog conditioning — results
 │   ├── circuit 7/translator/          # COMPIM hardware-in-the-loop LCD firmware
-│   ├── sensor read/sensor_read/       # ESP32 firmware for the physical DAQ node
 │   └── ultrasonic.txt
 └── Report/
     ├── PrjReport_Pashaei_Oleiaeemehr_MirKazemi_Group8.pdf
@@ -96,7 +97,9 @@ The controllers are designed on the noise-free plant first (`Simulink_simulation
 | `ultrasonic.txt` | Time–voltage table used as the input of the Proteus PWLIN source in Circuit 6 (a copy is also kept in `Proteus/`). |
 | `pics/` | Exported result figures (roll, pitch and yaw estimation; x, y, z comparisons with estimated-state feedback; raw sensor outputs) and `hardware_circuit.jpg`, a photo of the built circuit. |
 
-**Proteus and firmware (`Proteus/`)**
+**Proteus simulations (`Proteus/`)**
+
+The `.ino` files in these folders run on the simulated ATmega328P in Proteus, not on the real hardware.
 
 | Path | Role |
 |---|---|
@@ -108,7 +111,12 @@ The controllers are designed on the noise-free plant first (`Simulink_simulation
 | `circuit 5/micro_code/` | `micro_code.ino`: reads NMEA at 9600 baud, parses `$GPGGA`, shows latitude/longitude on the 16×2 LCD, and prints `NO FIX` when the fix quality is 0. `GPS OUTPUT.png` shows the result. |
 | `circuit 6/` | MB1240 analog chain (buffer, zero/span with LM4040-2.5 reference, Sallen-Key Butterworth): output and reference-voltage results. |
 | `circuit 7/translator/` | `translator.ino`: the hardware-in-the-loop receiver. It reads the real ESP32 data that arrives through the COMPIM block at 115200 baud and displays it on the simulated LCD. |
-| `sensor read/sensor_read/` | `sensor_read.ino`: firmware for the physical ESP32 DAQ node (IR rangefinder on GPIO 34, linearisation, LCD, USB serial and Bluetooth `Drone_Telemetry`). |
+
+**ESP32 firmware (`ESP32_Firmware/`)**
+
+| Path | Role |
+|---|---|
+| `sensor_read/sensor_read.ino` | Firmware for the physical ESP32 DAQ node: reads the IR rangefinder on GPIO 34, linearises it to distance, and sends it to the LCD, USB serial and Bluetooth `Drone_Telemetry`. |
 
 **Documentation (`Report/`)**
 
@@ -172,7 +180,7 @@ To regenerate the rangefinder input waveform, run `GenerateDataForUltraSonicSens
 
 ### Flash the hardware
 
-Open `Proteus/sensor read/sensor_read/sensor_read.ino` in the Arduino IDE, select an ESP32 board and upload. The node:
+Open `ESP32_Firmware/sensor_read/sensor_read.ino` in the Arduino IDE, select an ESP32 board and upload. The node:
 
 - reads the conditioned IR-sensor voltage on **GPIO 34** (12-bit ADC),
 - undoes the 2/3 divider and linearises with the fitted curve `d = 27.86 · V^(−1.15) − 0.42` (cm),
@@ -269,7 +277,7 @@ The signal path from the sensor to the display:
 4. **ESP32.** The 12-bit ADC on GPIO 34 samples the voltage. The firmware multiplies it by 1.5 to undo the divider, then converts it to distance with the curve fitted to the sensor's datasheet, `d = 27.86 · V^(−1.15) − 0.42` (cm).
 5. **Output.** The distance is shown on the 16×2 LCD and sent at 50 Hz over the USB serial port (115200 baud) and over Bluetooth serial (device name `Drone_Telemetry`), where any serial Bluetooth terminal app on a phone can read it. The MATLAB GUI's Hardware tab plots the same serial stream.
 
-The firmware is in [`Proteus/sensor read/sensor_read/sensor_read.ino`](Proteus/sensor%20read/sensor_read/sensor_read.ino).
+The firmware is in [`ESP32_Firmware/sensor_read/sensor_read.ino`](ESP32_Firmware/sensor_read/sensor_read.ino).
 
 ---
 
